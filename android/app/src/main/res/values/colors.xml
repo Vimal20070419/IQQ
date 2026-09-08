@@ -1,0 +1,10 @@
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="bg_dark">#FF0D1117</color>
+    <color name="surface_dark">#FF161B22</color>
+    <color name="primary_cyan">#FF00E5FF</color>
+    <color name="risk_high">#FFFF3366</color>
+    <color name="risk_medium">#FFFFB800</color>
+    <color name="risk_low">#FF00E676</color>
+</resources>

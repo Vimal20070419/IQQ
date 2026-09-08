@@ -1,0 +1,46 @@
+name: ShipSafe Deployment Safety Evaluation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  safety-evaluation:
+    name: AI Risk & Deployment Safety Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Calculate Code Diff & Changed Components
+        id: diff_analysis
+        run: |
+          echo "Analyzing modified files in release payload..."
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | tr '\n' ',' | sed 's/,$//')
+          echo "files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+      - name: Ingest Release into ShipSafe Safety Layer
+        env:
+          SHIPSAFE_API_URL: ${{ secrets.SHIPSAFE_API_URL || 'https://api.shipsafe.dev' }}
+          SHIPSAFE_WEBHOOK_SECRET: ${{ secrets.SHIPSAFE_WEBHOOK_SECRET || 'shipsafe_webhook_secret_123' }}
+        run: |
+          curl -X POST "${SHIPSAFE_API_URL}/api/webhooks/github" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: push" \
+            -H "X-Hub-Signature-256: mock-dev-signature" \
+            -d '{
+              "repository": { "full_name": "${{ github.repository }}" },
+              "ref": "${{ github.ref }}",
+              "head_commit": {
+                "id": "${{ github.sha }}",
+                "message": "${{ github.event.head_commit.message }}",
+                "author": { "email": "${{ github.actor }}@shipsafe.io" },
+                "added": [],
+                "modified": ["src/config/payment.config.ts", "src/services/stripeGateway.ts"],
+                "removed": []
+              }
+            }'

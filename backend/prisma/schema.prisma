@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String               @id @default(uuid())
+  email        String               @unique
+  name         String
+  passwordHash String
+  role         String               // ADMIN, RELEASE_MANAGER, ON_CALL_ENGINEER, VIEWER
+  avatar       String?
+  createdAt    DateTime             @default(now())
+  decisions    DeploymentDecision[]
+  auditLogs    AuditLog[]
+}
+
+model Deployment {
+  id               String               @id
+  serviceName      String
+  version          String
+  previousVersion  String
+  environment      String               // production, staging, development
+  status           String               // PENDING, CANARY, APPROVED, HELD, ROLLED_BACK, DEGRADED
+  commitSha        String
+  commitMessage    String
+  author           String
+  repository       String
+  branch           String
+  filesChanged     Int
+  linesAdded       Int
+  linesDeleted     Int
+  databaseMigration Boolean             @default(false)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  files            DeploymentFile[]
+  riskAssessment   RiskAssessment?
+  healthMetrics    DeploymentHealth[]
+  decisions        DeploymentDecision[]
+  auditLogs        AuditLog[]
+}
+
+model DeploymentFile {
+  id             String     @id @default(uuid())
+  deploymentId   String
+  filePath       String
+  changeType     String     // ADDED, MODIFIED, DELETED
+  linesChanged   Int
+  isSensitive    Boolean    @default(false)
+  category       String     // CONFIG, PAYMENT, DATABASE, API, AUTH, FRONTEND, CORE
+
+  deployment     Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
+}
+
+model RiskAssessment {
+  id                  String           @id @default(uuid())
+  deploymentId        String           @unique
+  riskLevel           String           // LOW, MEDIUM, HIGH, CRITICAL
+  riskScore           Int              // 0 - 100
+  summary             String
+  recommendation      String           // APPROVE, CANARY, HOLD, ROLLBACK
+  confidence          Float            @default(0.95)
+  isAiGenerated       Boolean          @default(true)
+  evidenceGrounded    Boolean          @default(true)
+  createdAt           DateTime         @default(now())
+
+  factorsJson         String           // JSON string of contributing factors with exact points
+  evidenceJson        String           // JSON string of explicit evidence bullets
+  affectedServicesJson String          // JSON string of service array
+  failureChainJson    String           // JSON string of failure chain steps
+  similarIncidentsJson String          // JSON string of matched incident references
+
+  deployment          Deployment       @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
+}
+
+model Incident {
+  id               String   @id // e.g. INC-017
+  title            String
+  serviceName      String
+  rootCause        String
+  changedComponent String
+  affectedServices String   // comma-separated or JSON string
+  severity         String   // SEV-1, SEV-2, SEV-3
+  resolution       String
+  deploymentPattern String
+  timestamp        DateTime
+  lessonsLearned   String?
+}
+
+model ServiceDependency {
+  id             String  @id @default(uuid())
+  sourceService  String
+  targetService  String
+  dependencyType String  // CRITICAL, SYNC_HTTP, ASYNC_QUEUE, DATABASE, CACHE
+  isDownstream   Boolean @default(true)
+  failureWeight  Float   @default(1.0)
+}
+
+model DeploymentDecision {
+  id           String     @id @default(uuid())
+  deploymentId String
+  userId       String
+  action       String     // APPROVE, CANARY, HOLD, ROLLBACK
+  trafficPct   Int?       // e.g. 10 for Canary
+  reason       String
+  createdAt    DateTime   @default(now())
+
+  deployment   Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+}
+
+model DeploymentHealth {
+  id           String     @id @default(uuid())
+  deploymentId String
+  errorRate    Float      // percentage, e.g. 0.8 or 7.4
+  latencyMs    Int        // in milliseconds, e.g. 220 or 780
+  http5xxCount Int
+  cpuPercent   Float
+  requestsPerSec Int
+  status       String     // HEALTHY, DEGRADED, CRITICAL
+  recordedAt   DateTime   @default(now())
+
+  deployment   Deployment @relation(fields: [deploymentId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id           String      @id @default(uuid())
+  deploymentId String?
+  userId       String?
+  userName     String
+  userRole     String
+  action       String      // LOGIN, VIEW_RISK, APPROVE, CANARY, HOLD, ROLLBACK, HEALTH_ALERT
+  details      String
+  result       String      // SUCCESS, FAILED, BLOCKED
+  ipAddress    String?
+  deviceModel  String?     // e.g. "iQOO 12 Pro (Android 14)"
+  timestamp    DateTime    @default(now())
+
+  deployment   Deployment? @relation(fields: [deploymentId], references: [id], onDelete: SetNull)
+  user         User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+}

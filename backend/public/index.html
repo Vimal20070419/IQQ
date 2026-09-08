@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShipSafe — AI-Powered Mobile Deployment Safety Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #070B12;
+      --surface-dark: #0D1420;
+      --surface-elevated: #141E2F;
+      --surface-card: rgba(20, 30, 47, 0.75);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --surface-border-hover: rgba(6, 182, 212, 0.4);
+      --primary-cyan: #06B6D4;
+      --primary-cyan-glow: rgba(6, 182, 212, 0.3);
+      --safe-emerald: #10B981;
+      --safe-emerald-glow: rgba(16, 185, 129, 0.25);
+      --canary-amber: #F59E0B;
+      --canary-amber-glow: rgba(245, 158, 11, 0.35);
+      --risk-crimson: #EF4444;
+      --risk-crimson-glow: rgba(239, 68, 68, 0.35);
+      --text-primary: #F8FAFC;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --glass-blur: blur(16px);
+      --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(239, 68, 68, 0.06) 0px, transparent 50%);
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      background: rgba(13, 20, 32, 0.85);
+      backdrop-filter: var(--glass-blur);
+      border-bottom: 1px solid var(--surface-border);
+      padding: 0.875rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.85rem; }
+    .brand-icon {
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(6, 182, 212, 0.05));
+      border: 1px solid var(--primary-cyan);
+      padding: 0.4rem 0.65rem;
+      border-radius: 10px;
+      box-shadow: 0 0 16px var(--primary-cyan-glow);
+    }
+    .brand-title { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.5px; }
+    .brand-subtitle { font-size: 0.7rem; color: var(--primary-cyan); font-weight: 700; letter-spacing: 1.5px; }
+
+    .header-actions { display: flex; gap: 0.85rem; align-items: center; }
+    .role-badge {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: var(--canary-amber);
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    /* MAIN CONTAINER */
+    .main-container {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 2rem;
+      padding: 1.75rem 2rem;
+      max-width: 1480px;
+      margin: 0 auto;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* PHONE DEVICE SIMULATOR */
+    .phone-mockup {
+      background: #000;
+      border: 5px solid #1E293B;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.85), 0 0 50px rgba(6, 182, 212, 0.12);
+      height: 870px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 130px;
+      height: 20px;
+      background: #000;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .phone-notch::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: #111827;
+      border-radius: 50%;
+    }
+
+    .phone-screen {
+      background: var(--bg-dark);
+      border-radius: 34px;
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 1.15rem 1.25rem 1.15rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      scrollbar-width: none;
+    }
+    .phone-screen::-webkit-scrollbar { display: none; }
+
+    /* PHONE TABS */
+    .screen-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      background: rgba(13, 20, 32, 0.9);
+      border: 1px solid var(--surface-border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+      margin-top: 0.25rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      padding: 0.4rem 0.2rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .tab-btn.active {
+      background: var(--surface-elevated);
+      color: var(--primary-cyan);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+
+    /* SCREEN VIEWS */
+    .screen-view {
+      display: none;
+      flex-direction: column;
+      gap: 0.85rem;
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+    .screen-view.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* PHONE HEADER */
+    .phone-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .status-pill {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .status-pill.danger {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: var(--risk-crimson);
+      box-shadow: 0 0 12px var(--risk-crimson-glow);
+    }
+    .status-pill.warning {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: var(--canary-amber);
+    }
+    .status-pill.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: var(--safe-emerald);
+    }
+
+    /* CARDS */
+    .card {
+      background: var(--surface-card);
+      backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      transition: var(--transition);
+    }
+    .card:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .card-title {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* SCREEN 1: RADIAL GAUGE */
+    .gauge-wrapper {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin: 0.25rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gauge-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: rgba(255, 255, 255, 0.06);
+      stroke-width: 10;
+    }
+
+    .gauge-progress {
+      fill: none;
+      stroke-width: 10;
+      stroke-linecap: round;
+      stroke-dasharray: 440;
+      stroke-dashoffset: 70; /* 84% filled */
+      stroke: url(#crimsonGradient);
+      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.5));
+      transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .gauge-center-content {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .score-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: var(--risk-crimson);
+      line-height: 1;
+      text-shadow: 0 0 20px var(--risk-crimson-glow);
+    }
+
+    .score-sub {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* EXPANDABLE EVIDENCE ACCORDION */
+    .evidence-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.25rem;
+    }
+
+    .evidence-item {
+      background: var(--surface-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      transition: var(--transition);
+    }
+
+    .evidence-header {
+      padding: 0.6rem 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .evidence-header:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .evidence-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 800;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+    .evidence-tag.risk-high {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--risk-crimson);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .evidence-tag.risk-med {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--canary-amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .evidence-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 0 0.75rem;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+      border-top: 1px solid transparent;
+    }
+
+    .evidence-item.expanded .evidence-detail {
+      max-height: 100px;
+      padding: 0.5rem 0.75rem;
+      border-top: 1px solid var(--surface-border);
+    }
+
+    /* SCREEN 2: DECISION ACTION CARDS */
+    .decision-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .decision-card {
+      background: var(--surface-elevated);
+      border: 1.5px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      text-align: left;
+    }
+
+    .decision-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+
+    /* Recommended Badge */
+    .recommended-badge {
+      position: absolute;
+      top: -9px;
+      right: 12px;
+      background: linear-gradient(135deg, var(--canary-amber), #d97706);
+      color: #000;
+      font-size: 0.62rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 0.15rem 0.55rem;
+      border-radius: 20px;
+      box-shadow: 0 0 12px var(--canary-amber-glow);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .decision-card.canary {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(13, 20, 32, 0.8));
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+    }
+    .decision-card.canary:hover {
+      border-color: var(--canary-amber);
+      box-shadow: 0 0 25px var(--canary-amber-glow);
+    }
+
+    .decision-card.approve {
+      border-color: rgba(16, 185, 129, 0.3);
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(13, 20, 32, 0.8));
+    }
+    .decision-card.approve:hover {
+      border-color: var(--safe-emerald);
+      box-shadow: 0 0 20px var(--safe-emerald-glow);
+    }
+
+    .decision-card.hold {
+      border-color: rgba(239, 68, 68, 0.3);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(13, 20, 32, 0.8));
+    }
+    .decision-card.hold:hover {
+      border-color: var(--risk-crimson);
+      box-shadow: 0 0 20px var(--risk-crimson-glow);
+    }
+
+    .decision-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .decision-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .decision-desc {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      line-height: 1.35;
+    }
+
+    .decision-meta {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.2rem;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* SCREEN 3: BLAST RADIUS DEPENDENCY GRAPH */
+    .blast-chain {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+    }
+
+    .blast-node {
+      background: var(--surface-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      transition: var(--transition);
+    }
+
+    .blast-node.root {
+      border-color: var(--risk-crimson);
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.15), var(--surface-elevated));
+      box-shadow: 0 0 16px var(--risk-crimson-glow);
+    }
+
+    .blast-node.direct {
+      border-color: rgba(239, 68, 68, 0.5);
+      background: rgba(239, 68, 68, 0.08);
+    }
+
+    .blast-node.cascading {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.06);
+    }
+
+    .blast-node.downstream {
+      border-color: rgba(6, 182, 212, 0.3);
+      background: rgba(6, 182, 212, 0.04);
+    }
+
+    .node-icon-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .node-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .node-status {
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+    }
+
+    .connector-line {
+      width: 2px;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.15);
+      margin: 0 auto;
+    }
+
+    /* TELEMETRY & BUTTONS */
+    .btn {
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.82rem;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-canary { background: var(--canary-amber); color: #000; font-weight: 900; width: 100%; }
+    .btn-canary:hover { background: #d97706; box-shadow: 0 0 16px var(--canary-amber-glow); }
+
+    .btn-approve { background: var(--safe-emerald); color: #000; width: 100%; }
+    .btn-approve:hover { background: #059669; }
+
+    .btn-rollback { background: var(--risk-crimson); color: #fff; width: 100%; font-weight: 900; }
+    .btn-rollback:hover { background: #dc2626; box-shadow: 0 0 20px var(--risk-crimson-glow); }
+
+    .btn-outline { background: transparent; border: 1px solid var(--surface-border); color: var(--text-secondary); }
+    .btn-outline:hover { background: var(--surface-elevated); color: #fff; border-color: var(--primary-cyan); }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .telemetry-item {
+      background: var(--surface-elevated);
+      padding: 0.65rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--surface-border);
+    }
+
+    .telemetry-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--safe-emerald);
+      margin-top: 0.2rem;
+      transition: var(--transition);
+    }
+
+    .telemetry-val.degraded {
+      color: var(--risk-crimson);
+      text-shadow: 0 0 12px var(--risk-crimson-glow);
+    }
+
+    /* RIGHT PANEL */
+    .console-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(239, 68, 68, 0.1));
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px; height: 100%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .step-badge {
+      display: inline-block;
+      background: var(--primary-cyan);
+      color: #000;
+      font-weight: 900;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .quick-screens {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.25rem;
+    }
+
+    .screen-card-preview {
+      background: var(--surface-elevated);
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .screen-card-preview:hover {
+      border-color: var(--primary-cyan);
+      transform: translateY(-2px);
+    }
+
+    .log-box {
+      background: #03060B;
+      border: 1px solid var(--surface-border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: #38bdf8;
+      height: 250px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .log-entry { margin-bottom: 0.35rem; }
+    .log-success { color: var(--safe-emerald); }
+    .log-alert { color: var(--risk-crimson); font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <!-- SVG Gradients Definition -->
+  <svg style="width:0;height:0;position:absolute;" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="crimsonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#EF4444" />
+        <stop offset="100%" stop-color="#DC2626" />
+      </linearGradient>
+      <linearGradient id="amberGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#F59E0B" />
+        <stop offset="100%" stop-color="#D97706" />
+      </linearGradient>
+      <linearGradient id="emeraldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#10B981" />
+        <stop offset="100%" stop-color="#059669" />
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <div class="brand-title">ShipSafe</div>
+        <div class="brand-subtitle">AI DEPLOYMENT SAFETY PLATFORM</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="role-badge">ROLE: RELEASE_MANAGER (Sarah Chen)</div>
+      <button class="btn btn-outline" onclick="resetDemo()">⚡ Reset Demo</button>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <!-- Mobile Screen Simulator -->
+    <div class="phone-mockup">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-header">
+          <div>
+            <div style="font-size: 0.68rem; color: var(--risk-crimson); font-weight: 800; letter-spacing: 0.5px;">PRODUCTION DEPLOYMENT</div>
+            <div style="font-size: 0.95rem; font-weight: 800;" id="mobileService">Checkout Service v2.8.4</div>
+          </div>
+          <span class="status-pill danger" id="riskPill">HIGH RISK</span>
+        </div>
+
+        <!-- Mobile Navigation Tabs for 3 Screens -->
+        <div class="screen-tabs">
+          <button class="tab-btn active" id="tabRisk" onclick="switchPhoneScreen('risk')">1. Risk Score</button>
+          <button class="tab-btn" id="tabDecision" onclick="switchPhoneScreen('decision')">2. Decisions</button>
+          <button class="tab-btn" id="tabBlast" onclick="switchPhoneScreen('blast')">3. Blast Radius</button>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 1: RISK SCORE DASHBOARD (DOMINANT GAUGE) -->
+        <!-- ============================================== -->
+        <div class="screen-view active" id="screenRisk">
+          <!-- Dominant Radial Gauge -->
+          <div class="card" style="text-align: center;">
+            <div class="card-title">
+              <span>AI RISK ASSESSMENT</span>
+              <span style="font-family: 'JetBrains Mono'; color: var(--risk-crimson);">CONFIDENCE: 94%</span>
+            </div>
+            
+            <div class="gauge-wrapper">
+              <svg class="gauge-svg" viewBox="0 0 160 160">
+                <circle class="gauge-bg" cx="80" cy="80" r="70"></circle>
+                <circle class="gauge-progress" cx="80" cy="80" r="70" id="gaugeCircle"></circle>
+              </svg>
+              <div class="gauge-center-content">
+                <div class="score-number" id="mobileScore">84</div>
+                <div class="score-sub">OUT OF 100</div>
+              </div>
+            </div>
+
+            <p style="font-size: 0.74rem; color: var(--text-secondary); line-height: 1.35; margin-top: 0.35rem;" id="mobileSummary">
+              Payment timeout and retry configuration modified in production. Historical incident (INC-017) previously triggered downstream checkout cascades.
+            </p>
+          </div>
+
+          <!-- Expandable Grounded Evidence Factors -->
+          <div class="card">
+            <div class="card-title">
+              <span>GROUNDED EVIDENCE BREAKDOWN</span>
+              <span style="font-size: 0.6rem; color: var(--text-muted);">TAP TO EXPAND</span>
+            </div>
+            
+            <div class="evidence-list" id="mobileFactors">
+              <div class="evidence-item expanded" onclick="toggleEvidence(this)">
+                <div class="evidence-header">
+                  <span>⚡ Payment config modified</span>
+                  <span class="evidence-tag risk-high">+20</span>
+                </div>
+                <div class="evidence-detail">
+                  Modified <code>payment_gateway.ts</code> retry limits (3 → 8) and timeout (2s → 15s) in core payment pipeline.
+                </div>
+              </div>
+
+              <div class="evidence-item" onclick="toggleEvidence(this)">
+                <div class="evidence-header">
+                  <span>🧠 Incident Match: INC-017</span>
+                  <span class="evidence-tag risk-high">+18</span>
+                </div>
+                <div class="evidence-detail">
+                  92% vector similarity to INC-017 ("Payment gateway retry storm during holiday surge").
+                </div>
+              </div>
+
+              <div class="evidence-item" onclick="toggleEvidence(this)">
+                <div class="evidence-header">
+                  <span>💥 4 Downstream dependencies</span>
+                  <span class="evidence-tag risk-med">+16</span>
+                </div>
+                <div class="evidence-detail">
+                  Direct synchronous RPC linkages to Payment, Orders, Inventory, and Notification services.
+                </div>
+              </div>
+
+              <div class="evidence-item" onclick="toggleEvidence(this)">
+                <div class="evidence-header">
+                  <span>📄 184 lines in critical path</span>
+                  <span class="evidence-tag risk-med">+15</span>
+                </div>
+                <div class="evidence-detail">
+                  Extensive additions (+142) and deletions (-42) touching primary transaction processing logic.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 2: APPROVE / CANARY / HOLD DECISION     -->
+        <!-- ============================================== -->
+        <div class="screen-view" id="screenDecision">
+          <div class="card-title">SELECT RELEASE STRATEGY</div>
+          
+          <div class="decision-container">
+            <!-- Canary (Recommended) -->
+            <div class="decision-card canary" onclick="triggerCanary()">
+              <div class="recommended-badge">★ AI RECOMMENDED</div>
+              <div class="decision-header-row">
+                <div class="decision-title" style="color: var(--canary-amber);">
+                  <span>⚡</span> CANARY 10%
+                </div>
+                <span class="status-pill warning">GRADUAL</span>
+              </div>
+              <div class="decision-desc">
+                Deploy to isolated 10% canary traffic pool with real-time telemetry degradation alarms and automatic circuit breaker.
+              </div>
+              <div class="decision-meta">
+                <span>BLAST RADIUS: MINIMAL</span>
+                <span>•</span>
+                <span>ROLLBACK: IMMEDIATE</span>
+              </div>
+            </div>
+
+            <!-- Approve (100% Release) -->
+            <div class="decision-card approve" onclick="triggerApproveFull()">
+              <div class="decision-header-row">
+                <div class="decision-title" style="color: var(--safe-emerald);">
+                  <span>🟢</span> APPROVE 100%
+                </div>
+                <span class="status-pill success">FULL DEPLOY</span>
+              </div>
+              <div class="decision-desc">
+                Promote build directly to all production clusters simultaneously.
+              </div>
+              <div class="decision-meta">
+                <span>RISK EXPOSURE: MAXIMUM</span>
+                <span>•</span>
+                <span>TRAFFIC: 100%</span>
+              </div>
+            </div>
+
+            <!-- Hold Release (0%) -->
+            <div class="decision-card hold" onclick="triggerHold()">
+              <div class="decision-header-row">
+                <div class="decision-title" style="color: var(--risk-crimson);">
+                  <span>⛔</span> HOLD RELEASE
+                </div>
+                <span class="status-pill danger">HALTED</span>
+              </div>
+              <div class="decision-desc">
+                Block deployment, maintain current stable v2.8.3, and notify on-call author for security & SRE revalidation.
+              </div>
+              <div class="decision-meta">
+                <span>RISK: ZERO</span>
+                <span>•</span>
+                <span>ACTION: NOTIFY AUTHOR</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 3: BLAST RADIUS DEPENDENCY CHAIN GRAPH   -->
+        <!-- ============================================== -->
+        <div class="screen-view" id="screenBlast">
+          <div class="card">
+            <div class="card-title">
+              <span>SERVICE DEPENDENCY CHAIN</span>
+              <span style="color: var(--risk-crimson); font-family: 'JetBrains Mono';">4 AFFECTED</span>
+            </div>
+
+            <div class="blast-chain">
+              <!-- Node 1: Source -->
+              <div class="blast-node root">
+                <div class="node-icon-title">
+                  <span style="font-size: 1.1rem;">🛒</span>
+                  <div>
+                    <div class="node-title" style="color: var(--risk-crimson);">Checkout Service</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted);">SOURCE COMPONENT (v2.8.4)</div>
+                  </div>
+                </div>
+                <span class="status-pill danger">MODIFIED</span>
+              </div>
+
+              <div class="connector-line"></div>
+
+              <!-- Node 2: Direct Impact -->
+              <div class="blast-node direct">
+                <div class="node-icon-title">
+                  <span style="font-size: 1.1rem;">💳</span>
+                  <div>
+                    <div class="node-title" style="color: var(--risk-crimson);">Payment Gateway</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted);">DIRECT SYNCHRONOUS RPC</div>
+                  </div>
+                </div>
+                <span class="node-status" style="color: var(--risk-crimson);">CRITICAL (+560ms)</span>
+              </div>
+
+              <div class="connector-line"></div>
+
+              <!-- Node 3: Cascading -->
+              <div class="blast-node cascading">
+                <div class="node-icon-title">
+                  <span style="font-size: 1.1rem;">📦</span>
+                  <div>
+                    <div class="node-title" style="color: var(--canary-amber);">Orders Processing</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted);">CASCADING DEPENDENCY</div>
+                  </div>
+                </div>
+                <span class="node-status" style="color: var(--canary-amber);">HIGH RISK</span>
+              </div>
+
+              <div class="connector-line"></div>
+
+              <!-- Node 4: Downstream -->
+              <div class="blast-node downstream">
+                <div class="node-icon-title">
+                  <span style="font-size: 1.1rem;">📊</span>
+                  <div>
+                    <div class="node-title" style="color: var(--primary-cyan);">Inventory Sync</div>
+                    <div style="font-size: 0.65rem; color: var(--text-muted);">ASYNC QUEUE WORKER</div>
+                  </div>
+                </div>
+                <span class="node-status" style="color: var(--primary-cyan);">MONITORED</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Telemetry Card (Visible across mobile flows) -->
+        <div class="card" id="telemetryCard" style="margin-top: auto;">
+          <div class="card-title" id="telemetryHeader">POST-DEPLOY LIVE TELEMETRY</div>
+          <div class="telemetry-grid">
+            <div class="telemetry-item">
+              <div style="font-size: 0.62rem; color: var(--text-muted);">ERROR RATE</div>
+              <div class="telemetry-val" id="telError">0.8%</div>
+            </div>
+            <div class="telemetry-item">
+              <div style="font-size: 0.62rem; color: var(--text-muted);">LATENCY P99</div>
+              <div class="telemetry-val" id="telLatency">220ms</div>
+            </div>
+            <div class="telemetry-item">
+              <div style="font-size: 0.62rem; color: var(--text-muted);">5XX ERRORS</div>
+              <div class="telemetry-val" id="tel5xx">12</div>
+            </div>
+            <div class="telemetry-item">
+              <div style="font-size: 0.62rem; color: var(--text-muted);">CPU USAGE</div>
+              <div class="telemetry-val" id="telCpu">61.2%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rollback Action Trigger -->
+        <button class="btn btn-rollback" id="btnRollback" style="display: none;" onclick="triggerRollback()">
+          🚨 CONFIRM ROLLBACK (RESTORE v2.8.3)
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: DEMO CONTROLS & REAL-TIME AUDIT -->
+    <div class="console-panel">
+      <div class="hero-banner">
+        <div>
+          <div class="step-badge">HACKATHON HERO DEMO</div>
+          <h2 style="font-size: 1.45rem; margin-bottom: 0.25rem;">Live AI Deployment Safety Surface</h2>
+          <p style="color: var(--text-secondary); font-size: 0.85rem; max-width: 650px;">
+            Demonstrating real-time AI Risk Scoring, RAG Historical Memory (INC-017), Blast Radius Cascades, Canary Execution, and Automated Pre-Flight Smart Rollbacks.
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Screen Switcher Previews for Judges -->
+      <div class="card">
+        <div class="card-title">JUDGE DEMO PREVIEW CARDS (SELECT TO SWITCH PHONE SCREEN)</div>
+        <div class="quick-screens">
+          <div class="screen-card-preview" onclick="switchPhoneScreen('risk')">
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--risk-crimson); margin-bottom: 4px;">1. Risk Gauge (84/100)</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);">Dominant radial gauge + grounded point breakdown.</div>
+          </div>
+          <div class="screen-card-preview" onclick="switchPhoneScreen('decision')">
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--canary-amber); margin-bottom: 4px;">2. Decision Center</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);">Canary (★ AI Recommended), Approve, & Hold.</div>
+          </div>
+          <div class="screen-card-preview" onclick="switchPhoneScreen('blast')">
+            <div style="font-size: 0.8rem; font-weight: 800; color: var(--primary-cyan); margin-bottom: 4px;">3. Blast Radius</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted);">4-node cascading microservice dependency tree.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Triggers for Judges -->
+      <div class="card">
+        <div class="card-title">SIMULATION & TELEMETRY CONTROLS</div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="btn btn-canary" style="width: auto;" onclick="triggerCanary()">1. Deploy Canary (10%)</button>
+          <button class="btn btn-rollback" style="width: auto;" onclick="injectDegradation()">2. 🚨 Inject Degradation Spike (0.8% → 7.4%)</button>
+          <button class="btn btn-approve" style="width: auto;" onclick="triggerRollback()">3. Confirm Smart Rollback</button>
+        </div>
+      </div>
+
+      <!-- Live Audit Log Stream -->
+      <div class="card">
+        <div class="card-title">REAL-TIME IMMUTABLE AUDIT STREAM</div>
+        <div class="log-box" id="auditLogBox">
+          <div class="log-entry log-success">[SYSTEM READY] ShipSafe Backend initialized on port 3000. 18 Historical Incidents loaded.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function log(msg, type = '') {
+      const box = document.getElementById('auditLogBox');
+      const div = document.createElement('div');
+      div.className = `log-entry ${type}`;
+      div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function switchPhoneScreen(screenKey) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.screen-view').forEach(v => v.classList.remove('active'));
+
+      if (screenKey === 'risk') {
+        document.getElementById('tabRisk').classList.add('active');
+        document.getElementById('screenRisk').classList.add('active');
+      } else if (screenKey === 'decision') {
+        document.getElementById('tabDecision').classList.add('active');
+        document.getElementById('screenDecision').classList.add('active');
+      } else if (screenKey === 'blast') {
+        document.getElementById('tabBlast').classList.add('active');
+        document.getElementById('screenBlast').classList.add('active');
+      }
+    }
+
+    function toggleEvidence(element) {
+      element.classList.toggle('expanded');
+    }
+
+    async function triggerCanary() {
+      switchPhoneScreen('decision');
+      log('Executing Canary Rollout (10% traffic)...');
+      try {
+        const res = await fetch('/api/deployments/dep-checkout-v284/canary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-demo-role': 'RELEASE_MANAGER' },
+          body: JSON.stringify({ action: 'CANARY', trafficPct: 10, reason: 'AI recommended gradual canary rollout' })
+        });
+        const data = await res.json();
+        log(`✓ Canary 10% Active. Target deployment status: ${data.deployment?.status}`, 'log-success');
+      } catch (err) {
+        log(`Error: ${err.message}`, 'log-alert');
+      }
+    }
+
+    function triggerApproveFull() {
+      log('Release Approved for 100% Production Traffic.', 'log-success');
+    }
+
+    function triggerHold() {
+      log('Deployment Halted (0% Traffic). Author notified for revalidation.', 'log-alert');
+    }
+
+    async function injectDegradation() {
+      log('🚨 Injecting Telemetry Degradation Spike (Error rate: 0.8% → 7.4%, Latency: 220ms → 780ms)...', 'log-alert');
+      try {
+        const res = await fetch('/api/demo/simulate-health', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deploymentId: 'dep-checkout-v284', degrade: true })
+        });
+        const data = await res.json();
+        
+        document.getElementById('telError').innerText = '7.4%';
+        document.getElementById('telError').className = 'telemetry-val degraded';
+        document.getElementById('telLatency').innerText = '780ms';
+        document.getElementById('telLatency').className = 'telemetry-val degraded';
+        document.getElementById('tel5xx').innerText = '184';
+        document.getElementById('tel5xx').className = 'telemetry-val degraded';
+        document.getElementById('telemetryHeader').innerText = '🚨 CRITICAL SLA BREACH DETECTED';
+        document.getElementById('telemetryHeader').style.color = '#EF4444';
+        document.getElementById('btnRollback').style.display = 'block';
+
+        log('🚨 ALERT: Deployment degradation detected. AI Recommendation: Immediate Rollback.', 'log-alert');
+      } catch (err) {
+        log(`Error: ${err.message}`, 'log-alert');
+      }
+    }
+
+    async function triggerRollback() {
+      log('Running Smart Rollback Guard Pre-flight Revalidation...');
+      try {
+        const guardRes = await fetch('/api/deployments/dep-checkout-v284/rollback-guard');
+        const guard = await guardRes.json();
+        log(`✓ Guard Check Passed: Target ${guard.targetVersion} verified. No schema migrations.`, 'log-success');
+
+        const res = await fetch('/api/deployments/dep-checkout-v284/rollback', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-demo-role': 'ON_CALL_ENGINEER' },
+          body: JSON.stringify({ action: 'ROLLBACK', reason: 'Confirmed rollback after health degradation alert' })
+        });
+        const data = await res.json();
+        const targetVer = data.toVersion || data.restoredVersion || (guard && guard.targetVersion) || 'v2.8.3';
+        log(`✅ ROLLBACK SUCCESSFUL: Restored stable version ${targetVer}. Audit record committed.`, 'log-success');
+        
+        document.getElementById('telError').innerText = '0.8%';
+        document.getElementById('telError').className = 'telemetry-val';
+        document.getElementById('telLatency').innerText = '220ms';
+        document.getElementById('telLatency').className = 'telemetry-val';
+        document.getElementById('tel5xx').innerText = '12';
+        document.getElementById('tel5xx').className = 'telemetry-val';
+        document.getElementById('telemetryHeader').innerText = `🟢 STABLE RUNNING (RESTORED ${targetVer})`;
+        document.getElementById('telemetryHeader').style.color = '#10B981';
+        document.getElementById('btnRollback').style.display = 'none';
+      } catch (err) {
+        log(`Error: ${err.message}`, 'log-alert');
+      }
+    }
+
+    async function resetDemo() {
+      log('Resetting ShipSafe environment to initial demo state...');
+      await fetch('/api/demo/reset', { method: 'POST' });
+      location.reload();
+    }
+  </script>
+</body>
+</html>

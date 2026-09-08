@@ -1,0 +1,14 @@
+{
+  "name": "shipsafe-root",
+  "version": "1.0.0",
+  "description": "ShipSafe - AI-Powered Mobile Deployment Safety Platform",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix backend run build",
+    "start": "npm --prefix backend run start",
+    "dev": "npm --prefix backend run dev",
+    "seed": "npm --prefix backend run seed",
+    "test": "npm --prefix backend test",
+    "android:build": "cd android && gradlew.bat assembleDebug"
+  }
+}

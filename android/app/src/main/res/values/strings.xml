@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">ShipSafe</string>
+    <string name="app_tagline">See the risk. Understand the impact. Ship safely.</string>
+    <string name="login_title">Enterprise Access</string>
+    <string name="home_title">Deployment Safety Center</string>
+</resources>

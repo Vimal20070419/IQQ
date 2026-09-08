@@ -1,0 +1,27 @@
+# Node & Backend
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.env.*.local
+*.sqlite
+*.sqlite-journal
+
+# Android & Gradle
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+local.properties
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs & Temp
+*.log
+scratch/
