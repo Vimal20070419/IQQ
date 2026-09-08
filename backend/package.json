@@ -4,7 +4,8 @@
   "description": "ShipSafe - AI-Powered Mobile Deployment Safety Platform Backend",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "postinstall": "prisma generate",
+    "build": "prisma generate && tsc",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "prisma:generate": "prisma generate",
